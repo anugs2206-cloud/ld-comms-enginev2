@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>L&D Comms Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0F0E0C;
+  --ink-2:#4A4843;
+  --ink-3:#9A9690;
+  --paper:#FAF9F6;
+  --paper-2:#F2F0EB;
+  --paper-3:#E8E4DC;
+  --gold:#C9A84C;
+  --gold-light:#F5EDD6;
+  --blue:#1B4FD8;
+  --blue-light:#EBF0FC;
+  --green:#1C7C4A;
+  --green-light:#E8F5EE;
+  --amber:#B85C00;
+  --amber-light:#FDF0E0;
+  --red:#C0392B;
+  --border:rgba(15,14,12,0.1);
+  --border-strong:rgba(15,14,12,0.2);
+  --shadow-sm:0 1px 2px rgba(15,14,12,0.06);
+  --shadow:0 2px 8px rgba(15,14,12,0.08),0 1px 2px rgba(15,14,12,0.04);
+  --shadow-lg:0 8px 32px rgba(15,14,12,0.12),0 2px 8px rgba(15,14,12,0.06);
+  --r:8px;
+  --r-lg:14px;
+  --r-xl:20px;
+}
+
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.5;}
+input,select,textarea,button{font-family:'Outfit',sans-serif;}
+
+/* GRAIN OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* LAYOUT */
+.shell{max-width:900px;margin:0 auto;padding:0 20px 80px;position:relative;z-index:1;}
+
+/* TOP BAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 0;margin-bottom:40px;
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-icon{
+  width:40px;height:40px;background:var(--ink);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--paper);font-size:18px;flex-shrink:0;
+  box-shadow:var(--shadow);
+}
+.brand-name{font-family:'Instrument Serif',serif;font-size:22px;letter-spacing:-0.02em;line-height:1.1;}
+.brand-name span{font-style:italic;color:var(--gold);}
+.brand-sub{font-size:12px;color:var(--ink-3);margin-top:1px;font-weight:400;}
+.mode-switch{
+  display:flex;gap:2px;
+  background:var(--paper-3);border-radius:10px;padding:3px;
+  border:1px solid var(--border);
+}
+.mode-btn{
+  font-size:13px;font-weight:500;padding:7px 18px;
+  border-radius:8px;border:none;background:transparent;
+  color:var(--ink-2);cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.mode-btn.active{
+  background:var(--ink);color:var(--paper);
+  box-shadow:var(--shadow);
+}
+
+/* HERO LINE */
+.hero{margin-bottom:32px;}
+.hero-headline{
+  font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,40px);
+  letter-spacing:-0.03em;line-height:1.15;margin-bottom:8px;
+}
+.hero-headline em{font-style:italic;color:var(--gold);}
+.hero-sub{font-size:14px;color:var(--ink-2);max-width:520px;line-height:1.6;}
+
+/* PANELS */
+.panel{display:none;animation:slideUp 0.2s ease;}
+.panel.active{display:block;}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* SUB TABS */
+.sub-nav{display:flex;gap:0;margin-bottom:28px;border-bottom:1.5px solid var(--border);}
+.sub-tab{
+  font-size:13px;font-weight:500;padding:10px 20px;
+  border:none;background:transparent;color:var(--ink-3);
+  cursor:pointer;border-bottom:2px solid transparent;
+  margin-bottom:-1.5px;transition:all 0.15s;
+}
+.sub-tab.active{color:var(--ink);border-bottom-color:var(--gold);}
+.sub-tab:hover:not(.active){color:var(--ink-2);}
+
+.sub-panel{display:none;}
+.sub-panel.active{display:block;animation:slideUp 0.18s ease;}
+
+/* CARD */
+.card{
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:24px;
+  box-shadow:var(--shadow);margin-bottom:16px;
+}
+.card-label{
+  font-size:11px;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:18px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg.full{grid-column:1/-1;}
+label{font-size:12px;font-weight:500;color:var(--ink-2);}
+input[type=text],input[type=date],select,textarea{
+  width:100%;padding:10px 13px;font-size:14px;
+  border:1.5px solid var(--border);border-radius:var(--r);
+  background:var(--paper-2);color:var(--ink);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s,background 0.15s;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px var(--gold-light);
+  background:var(--paper);
+}
+textarea{resize:vertical;min-height:84px;line-height:1.55;}
+select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239A9690' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;
+}
+
+/* BUTTONS */
+.btn-primary{
+  width:100%;padding:12px 20px;font-size:14px;font-weight:600;
+  background:var(--ink);color:var(--paper);border:none;
+  border-radius:var(--r-lg);cursor:pointer;
+  transition:opacity 0.15s,transform 0.1s;
+  letter-spacing:-0.01em;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-primary:hover{opacity:0.85;}
+.btn-primary:active{transform:scale(0.99);}
+.btn-ghost{
+  font-size:12px;font-weight:500;padding:7px 14px;
+  border-radius:var(--r);border:1.5px solid var(--border);
+  background:transparent;color:var(--ink-2);cursor:pointer;
+  transition:all 0.15s;white-space:nowrap;
+}
+.btn-ghost:hover{background:var(--paper-2);border-color:var(--border-strong);}
+.btn-gold{
+  font-size:12px;font-weight:600;padding:7px 14px;
+  border-radius:var(--r);border:1.5px solid var(--gold);
+  background:var(--gold-light);color:var(--amber);cursor:pointer;
+  transition:all 0.15s;white-space:nowrap;
+}
+.btn-gold:hover{background:var(--gold);color:white;}
+.btn-link{
+  font-size:13px;font-weight:500;color:var(--blue);
+  background:none;border:none;cursor:pointer;padding:4px 0;
+  transition:opacity 0.15s;
+}
+.btn-link:hover{opacity:0.7;}
+
+/* EMAIL OUTPUT */
+.out-nav{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.out-btn{
+  font-size:12px;font-weight:500;padding:6px 16px;
+  border-radius:20px;border:1.5px solid var(--border);
+  background:transparent;color:var(--ink-2);cursor:pointer;transition:all 0.15s;
+}
+.out-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+.email-card{
+  background:var(--paper);border:1.5px solid var(--border);
+  border-radius:var(--r-xl);padding:22px;
+  box-shadow:var(--shadow);display:none;
+  animation:slideUp 0.18s ease;
+}
+.email-card.active{display:block;}
+.email-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:14px;padding-bottom:14px;
+  border-bottom:1px solid var(--border);gap:12px;
+}
+.email-subject{
+  font-family:'Instrument Serif',serif;font-size:18px;
+  letter-spacing:-0.02em;line-height:1.3;margin-bottom:6px;
+}
+.pill{
+  display:inline-block;font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:20px;letter-spacing:0.03em;
+  text-transform:uppercase;
+}
+.pill-blue{background:var(--blue-light);color:var(--blue);}
+.pill-amber{background:var(--amber-light);color:var(--amber);}
+.pill-green{background:var(--green-light);color:var(--green);}
+.pill-ink{background:var(--paper-3);color:var(--ink-2);}
+.pill-gold{background:var(--gold-light);color:var(--amber);}
+
+.email-body{
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  line-height:1.8;color:var(--ink-2);white-space:pre-line;
+}
+.email-actions{
+  display:flex;gap:8px;margin-top:16px;
+  padding-top:14px;border-top:1px solid var(--border);
+}
+
+/* TEMPLATE GRID */
+.tpl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.tpl-card{
+  background:var(--paper);border:1.5px solid var(--border);
+  border-radius:var(--r-lg);padding:16px;cursor:pointer;
+  transition:all 0.15s;position:relative;
+}
+.tpl-card:hover{border-color:var(--border-strong);box-shadow:var(--shadow);transform:translateY(-1px);}
+.tpl-card.selected{border-color:var(--gold);background:var(--gold-light);}
+.tpl-name{font-size:14px;font-weight:600;margin-bottom:4px;letter-spacing:-0.01em;}
+.tpl-desc{font-size:12px;color:var(--ink-2);line-height:1.5;}
+.tpl-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.tpl-del{font-size:18px;color:var(--ink-3);background:none;border:none;cursor:pointer;line-height:1;padding:2px 4px;border-radius:4px;}
+.tpl-del:hover{color:var(--red);background:rgba(192,57,43,0.08);}
+.empty-st{text-align:center;padding:48px 20px;color:var(--ink-3);font-size:13px;grid-column:1/-1;}
+.empty-icon{font-size:32px;margin-bottom:8px;}
+
+/* BATCH */
+.batch-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.batch-row input{flex:1;}
+.batch-rm{font-size:18px;color:var(--ink-3);background:none;border:none;cursor:pointer;padding:0 4px;flex-shrink:0;transition:color 0.15s;}
+.batch-rm:hover{color:var(--red);}
+.batch-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.batch-nbtn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--ink-2);cursor:pointer;transition:all 0.15s;}
+.batch-nbtn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* SECTION LABEL */
+.sec-label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+
+/* BOT */
+.chat-shell{
+  background:var(--paper);border:1.5px solid var(--border);
+  border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-lg);
+}
+.chat-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  background:var(--paper-2);
+}
+.chat-dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+.chat-title{font-size:13px;font-weight:600;}
+.chat-status{font-size:12px;color:var(--ink-3);}
+.chat-msgs{
+  padding:20px;min-height:280px;max-height:340px;
+  overflow-y:auto;display:flex;flex-direction:column;gap:12px;
+}
+.bubble{
+  max-width:76%;padding:11px 15px;
+  border-radius:16px;font-size:13.5px;line-height:1.6;
+}
+.bub-bot{
+  background:var(--paper-2);color:var(--ink);
+  align-self:flex-start;border-bottom-left-radius:4px;
+  border:1px solid var(--border);
+}
+.bub-user{
+  background:var(--ink);color:var(--paper);
+  align-self:flex-end;border-bottom-right-radius:4px;
+}
+.chat-input-row{
+  border-top:1px solid var(--border);padding:14px 16px;
+  display:flex;gap:10px;background:var(--paper-2);
+}
+.chat-input-row input{
+  flex:1;padding:10px 14px;font-size:14px;
+  border:1.5px solid var(--border);border-radius:var(--r-lg);
+  background:var(--paper);color:var(--ink);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.chat-input-row input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-light);}
+.btn-send{
+  padding:10px 20px;font-size:13px;font-weight:600;
+  background:var(--ink);color:var(--paper);border:none;
+  border-radius:var(--r-lg);cursor:pointer;transition:opacity 0.15s;
+}
+.btn-send:hover{opacity:0.85;}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--ink);color:var(--paper);
+  font-size:13px;font-weight:500;
+  padding:10px 22px;border-radius:24px;
+  opacity:0;transition:all 0.22s;
+  pointer-events:none;z-index:200;white-space:nowrap;
+  box-shadow:var(--shadow-lg);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* MODAL */
+.modal-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(15,14,12,0.4);z-index:100;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-bg.open{display:flex;}
+.modal{
+  background:var(--paper);border-radius:var(--r-xl);
+  border:1.5px solid var(--border);padding:28px;
+  width:400px;max-width:92vw;
+  box-shadow:var(--shadow-lg);
+  animation:slideUp 0.18s ease;
+}
+.modal-title{
+  font-family:'Instrument Serif',serif;font-size:22px;
+  letter-spacing:-0.02em;margin-bottom:4px;
+}
+.modal-sub{font-size:13px;color:var(--ink-2);margin-bottom:20px;line-height:1.5;}
+.modal .fg{margin-bottom:12px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions button{flex:1;padding:11px;font-size:13px;font-weight:600;border-radius:var(--r-lg);cursor:pointer;transition:all 0.15s;}
+.btn-cancel{background:transparent;border:1.5px solid var(--border);color:var(--ink-2);}
+.btn-cancel:hover{background:var(--paper-2);}
+.btn-confirm{background:var(--ink);color:var(--paper);border:none;}
+.btn-confirm:hover{opacity:0.85;}
+
+/* STAT CHIPS */
+.stats-row{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;}
+.stat-chip{
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:12px 18px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:var(--shadow-sm);flex:1;min-width:140px;
+}
+.stat-icon{font-size:20px;}
+.stat-val{font-size:18px;font-weight:600;letter-spacing:-0.02em;line-height:1;}
+.stat-lbl{font-size:11px;color:var(--ink-3);margin-top:2px;}
+
+@media(max-width:600px){
+  .form-grid,.tpl-grid{grid-template-columns:1fr;}
+  .topbar{flex-direction:column;align-items:flex-start;gap:14px;}
+  .hero-headline{font-size:28px;}
+  .stats-row{gap:8px;}
+  .stat-chip{min-width:120px;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">✦</div>
+      <div>
+        <div class="brand-name">Comms <span>Engine</span></div>
+        <div class="brand-sub">L&D Operations · Internal Tool</div>
+      </div>
+    </div>
+    <div class="mode-switch">
+      <button class="mode-btn active" onclick="switchMode('quick',this)">⚡ Quick Mode</button>
+      <button class="mode-btn" onclick="switchMode('bot',this)">✦ Bot Mode</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-headline">Stop rewriting.<br><em>Start sending.</em></div>
+    <div class="hero-sub">Generate launch announcements, reminders & follow-ups in seconds — with your tone, your templates, for every batch.</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-chip"><div class="stat-icon">📨</div><div><div class="stat-val" id="s-generated">0</div><div class="stat-lbl">Emails generated</div></div></div>
+    <div class="stat-chip"><div class="stat-icon">📋</div><div><div class="stat-val" id="s-templates">4</div><div class="stat-lbl">Templates saved</div></div></div>
+    <div class="stat-chip"><div class="stat-icon">⚡</div><div><div class="stat-val">~45s</div><div class="stat-lbl">Avg. time saved</div></div></div>
+  </div>
+
+  <!-- QUICK MODE -->
+  <div id="panel-quick" class="panel active">
+    <div class="sub-nav">
+      <button class="sub-tab active" onclick="switchSub('generate',this)">Generate Emails</button>
+      <button class="sub-tab" onclick="switchSub('templates',this)">Template Emails</button>
+    </div>
+
+    <!-- GENERATE -->
+    <div id="sub-generate" class="sub-panel active">
+      <div class="card">
+        <div class="card-label">Program Details</div>
+        <div class="form-grid">
+          <div class="fg"><label>Program Name</label><input type="text" id="g-name" placeholder="e.g. Leadership Essentials"/></div>
+          <div class="fg"><label>Target Audience</label><input type="text" id="g-aud" placeholder="e.g. First-time Managers"/></div>
+          <div class="fg"><label>Program Date</label><input type="date" id="g-date"/></div>
+          <div class="fg"><label>Tone</label><select id="g-tone"><option>Friendly</option><option>Formal</option><option>Urgent</option></select></div>
+          <div class="fg full"><label>Key Message</label><textarea id="g-msg" placeholder="What's the most important thing participants should know or feel?"></textarea></div>
+        </div>
+        <button class="btn-primary" onclick="generateEmails()">Generate 3 Email Drafts <span>→</span></button>
+      </div>
+
+      <div id="gen-output" style="display:none;">
+        <div class="out-nav">
+          <button class="out-btn active" onclick="swEmail(0,this)">Launch Announcement</button>
+          <button class="out-btn" onclick="swEmail(1,this)">Pre-program Reminder</button>
+          <button class="out-btn" onclick="swEmail(2,this)">Post-program Follow-up</button>
+        </div>
+        <div id="ge-0" class="email-card active"></div>
+        <div id="ge-1" class="email-card"></div>
+        <div id="ge-2" class="email-card"></div>
+      </div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <div id="sub-templates" class="sub-panel">
+      <div class="tpl-header">
+        <div class="sec-label" style="margin:0;">Template Library</div>
+        <button class="btn-link" onclick="toggleCreate()">+ Create new template</button>
+      </div>
+      <div class="tpl-grid" id="tpl-grid"></div>
+
+      <div id="create-form" style="display:none;">
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-label">New Template</div>
+          <div class="form-grid">
+            <div class="fg"><label>Template Name</label><input type="text" id="nt-name" placeholder="e.g. Onboarding Welcome"/></div>
+            <div class="fg"><label>Category</label><select id="nt-cat"><option>Launch</option><option>Reminder</option><option>Follow-up</option><option>Custom</option></select></div>
+            <div class="fg full"><label>Description</label><input type="text" id="nt-desc" placeholder="What is this template for?"/></div>
+            <div class="fg full">
+              <label>Email Body — use [Program], [Date], [Audience] as placeholders</label>
+              <textarea id="nt-body" style="min-height:130px;" placeholder="Hi [Audience],&#10;&#10;We're excited to announce [Program] on [Date]...&#10;&#10;Warm regards,&#10;L&amp;D Team"></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-primary" style="flex:1;" onclick="saveNewTpl()">Save Template</button>
+            <button class="btn-ghost" onclick="toggleCreate()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="batch-form" style="display:none;">
+        <div class="divider"></div>
+        <div class="card">
+          <div class="card-label">Fill Variables</div>
+          <div class="form-grid">
+            <div class="fg"><label>Program Name</label><input type="text" id="b-name" placeholder="e.g. Leadership Essentials"/></div>
+            <div class="fg"><label>Program Date</label><input type="date" id="b-date"/></div>
+          </div>
+          <div class="divider"></div>
+          <div class="sec-label">Audience Batches</div>
+          <div id="batch-rows">
+            <div class="batch-row"><input type="text" placeholder="e.g. North India Managers"/><button class="batch-rm" onclick="rmBatch(this)">×</button></div>
+            <div class="batch-row"><input type="text" placeholder="e.g. South India Managers"/><button class="batch-rm" onclick="rmBatch(this)">×</button></div>
+          </div>
+          <button class="btn-link" onclick="addBatch()" style="margin-bottom:16px;">+ Add another batch</button>
+          <button class="btn-primary" onclick="genBatch()">Generate for All Batches →</button>
+        </div>
+        <div id="batch-out" style="display:none;">
+          <div class="batch-nav" id="batch-nav"></div>
+          <div id="batch-cards"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOT MODE -->
+  <div id="panel-bot" class="panel">
+    <div class="chat-shell">
+      <div class="chat-header">
+        <div class="chat-dot"></div>
+        <div>
+          <div class="chat-title">L&D Comms Assistant</div>
+          <div class="chat-status">Ask me to draft any communication</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="chat-msgs"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-in" placeholder="Type your reply..." onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="btn-send" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+    <div id="bot-out" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="save-modal">
+  <div class="modal">
+    <div class="modal-title">Save as Template</div>
+    <div class="modal-sub">Name this email so your team can reuse it anytime from the Template Library.</div>
+    <div class="fg"><label>Template Name</label><input type="text" id="m-name" placeholder="e.g. Standard Launch Email"/></div>
+    <div class="fg" style="margin-top:10px;"><label>Category</label><select id="m-cat"><option>Launch</option><option>Reminder</option><option>Follow-up</option><option>Custom</option></select></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmSave()">Save Template</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SK='ld_ce_v2';
+const PILLS={Launch:'pill-blue',Reminder:'pill-amber','Follow-up':'pill-green',Custom:'pill-ink',Saved:'pill-gold'};
+const DEFAULT_TPLS=[
+  {id:'d0',name:'Program Launch',category:'Launch',desc:'Standard announcement for any new program.',def:true,
+   body:'Hi [Audience],\n\nWe\'re thrilled to announce [Program], launching on [Date].\n\nThis program has been designed specifically for you — to build capabilities that matter and create real impact in your role.\n\nYour calendar invite and joining details will follow shortly. We\'re looking forward to having you with us.\n\nWarm regards,\nL&D Team'},
+  {id:'d1',name:'Pre-program Reminder',category:'Reminder',desc:'Nudge sent 2 days before any session.',def:true,
+   body:'Hi [Audience],\n\nJust a quick reminder — [Program] is happening on [Date].\n\nPlease make sure your calendar is blocked and you have the joining link ready. Reach out to us if you have any questions before the session.\n\nWarm regards,\nL&D Team'},
+  {id:'d2',name:'Post-program Follow-up',category:'Follow-up',desc:'Thank you + feedback request after completion.',def:true,
+   body:'Hi [Audience],\n\nThank you for being a part of [Program]. We hope it gave you something meaningful to take back into your work.\n\nPlease take 2 minutes to share your feedback — it helps us make every program better.\n\n[Feedback Link]\n\nWarm regards,\nL&D Team'},
+  {id:'d3',name:'Manager Nudge',category:'Custom',desc:'Ask managers to nominate or release their team.',def:true,
+   body:'Dear [Audience],\n\n[Program] is coming up on [Date], and we need your support to ensure your team can participate.\n\nPlease confirm nominations or release approvals at the earliest so we can finalise the participant list.\n\nRegards,\nL&D Team'}
+];
+
+let genCount=parseInt(localStorage.getItem(SK+'_gc')||'0');
+function getSaved(){try{return JSON.parse(localStorage.getItem(SK)||'[]');}catch{return[];}}
+function setSaved(a){localStorage.setItem(SK,JSON.stringify(a));updateStats();}
+function allTpls(){return[...DEFAULT_TPLS,...getSaved()];}
+function updateStats(){
+  document.getElementById('s-generated').textContent=genCount;
+  document.getElementById('s-templates').textContent=allTpls().length;
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2400);
+}
+function fmtDate(v){
+  if(!v)return'an upcoming date';
+  return new Date(v).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+}
+function cpText(btn){
+  const body=btn.closest('.email-card').querySelector('.email-body').textContent;
+  navigator.clipboard.writeText(body).then(()=>{btn.textContent='Copied ✓';setTimeout(()=>btn.textContent='Copy to clipboard',1800);});
+}
+
+function switchMode(m,el){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+m).classList.add('active');
+  if(m==='bot'&&!botStarted)startBot();
+}
+function switchSub(s,el){
+  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('sub-'+s).classList.add('active');
+  if(s==='templates')renderTpls();
+}
+
+// GENERATE
+function generateEmails(){
+  const name=document.getElementById('g-name').value||'Upcoming Program';
+  const aud=document.getElementById('g-aud').value||'Team';
+  const date=fmtDate(document.getElementById('g-date').value);
+  const tone=document.getElementById('g-tone').value;
+  const msg=document.getElementById('g-msg').value||'This is a great opportunity to grow.';
+  const sal=tone==='Formal'?'Dear':'Hi';
+  const sign=tone==='Formal'?'Regards':'Warm regards';
+
+  const emails=[
+    {subj:`Launching Soon: ${name}`,tag:'Launch Announcement',pill:'pill-blue',
+     body:`${sal} ${aud},\n\nWe're thrilled to announce the launch of ${name}.\n\n${msg}\n\n📅 Date: ${date}\n📌 Audience: ${aud}\n\nYour calendar invite and joining details will follow shortly.\n\n${sign},\nL&D Team`},
+    {subj:`Reminder: ${name} is just 2 days away`,tag:'Pre-program Reminder',pill:'pill-amber',
+     body:`${sal} ${aud},\n\nJust a quick reminder — ${name} is happening on ${date}.\n\n${msg}\n\nPlease block your calendar and keep the joining link handy.\n\n${sign},\nL&D Team`},
+    {subj:`Thank you for attending ${name}`,tag:'Post-program Follow-up',pill:'pill-green',
+     body:`${sal} ${aud},\n\nThank you for being a part of ${name}. We hope it was valuable.\n\n${msg}\n\nPlease take 2 minutes to share your feedback.\n\n[Feedback Link]\n\n${sign},\nL&D Team`}
+  ];
+
+  emails.forEach((e,i)=>{
+    document.getElementById('ge-'+i).innerHTML=`
+      <div class="email-top">
+        <div>
+          <div class="email-subject">${e.subj}</div>
+          <span class="pill ${e.pill}">${e.tag}</span>
+        </div>
+      </div>
+      <div class="email-body">${e.body}</div>
+      <div class="email-actions">
+        <button class="btn-ghost" onclick="cpText(this)">Copy to clipboard</button>
+        <button class="btn-gold" onclick="openModal('${e.subj.replace(/'/g,"\\'")}',this)">Save as template</button>
+      </div>`;
+  });
+
+  genCount++;
+  localStorage.setItem(SK+'_gc',genCount);
+  updateStats();
+  document.getElementById('gen-output').style.display='block';
+}
+
+function swEmail(i,btn){
+  document.querySelectorAll('.out-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#gen-output .email-card').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ge-'+i).classList.add('active');
+}
+
+// MODAL
+let pBody='',pSubj='';
+function openModal(subj,btn){
+  pBody=btn.closest('.email-card').querySelector('.email-body').textContent;
+  pSubj=subj;
+  document.getElementById('m-name').value='';
+  document.getElementById('save-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('save-modal').classList.remove('open');}
+function confirmSave(){
+  const name=document.getElementById('m-name').value.trim();
+  const cat=document.getElementById('m-cat').value;
+  if(!name){toast('Please enter a template name');return;}
+  const s=getSaved();
+  s.push({id:'s'+Date.now(),name,category:cat,desc:`Saved from: ${pSubj}`,def:false,body:pBody});
+  setSaved(s);closeModal();renderTpls();
+  toast('Template saved to library ✓');
+}
+
+// TEMPLATES
+let selTpl=null;
+function renderTpls(){
+  const g=document.getElementById('tpl-grid');
+  const all=allTpls();
+  if(!all.length){g.innerHTML='<div class="empty-st"><div class="empty-icon">📂</div>No templates yet. Create your first one above.</div>';return;}
+  g.innerHTML=all.map(t=>`
+    <div class="tpl-card ${selTpl===t.id?'selected':''}" onclick="selTemplate('${t.id}',this)">
+      <div class="tpl-name">${t.name}</div>
+      <div class="tpl-desc">${t.desc}</div>
+      <div class="tpl-foot">
+        <span class="pill ${PILLS[t.category]||'pill-ink'}">${t.category}</span>
+        ${!t.def?`<button class="tpl-del" onclick="delTpl(event,'${t.id}')">×</button>`:''}
+      </div>
+    </div>`).join('');
+  updateStats();
+}
+function selTemplate(id,el){
+  selTpl=id;
+  document.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('batch-form').style.display='block';
+  document.getElementById('create-form').style.display='none';
+  document.getElementById('batch-out').style.display='none';
+}
+function delTpl(e,id){
+  e.stopPropagation();
+  setSaved(getSaved().filter(t=>t.id!==id));
+  if(selTpl===id){selTpl=null;document.getElementById('batch-form').style.display='none';}
+  renderTpls();toast('Template deleted');
+}
+function toggleCreate(){
+  const f=document.getElementById('create-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+  document.getElementById('batch-form').style.display='none';
+}
+function saveNewTpl(){
+  const name=document.getElementById('nt-name').value.trim();
+  const cat=document.getElementById('nt-cat').value;
+  const desc=document.getElementById('nt-desc').value.trim();
+  const body=document.getElementById('nt-body').value.trim();
+  if(!name||!body){toast('Please fill in name and email body');return;}
+  const s=getSaved();
+  s.push({id:'s'+Date.now(),name,category:cat,desc:desc||'Custom saved template',def:false,body});
+  setSaved(s);
+  ['nt-name','nt-desc','nt-body'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('create-form').style.display='none';
+  renderTpls();toast('Template saved ✓');
+}
+
+// BATCH
+function addBatch(){
+  const r=document.createElement('div');r.className='batch-row';
+  r.innerHTML=`<input type="text" placeholder="e.g. West India Managers"/><button class="batch-rm" onclick="rmBatch(this)">×</button>`;
+  document.getElementById('batch-rows').appendChild(r);
+}
+function rmBatch(btn){if(document.querySelectorAll('.batch-row').length>1)btn.parentElement.remove();}
+function genBatch(){
+  if(!selTpl)return;
+  const tpl=allTpls().find(t=>t.id===selTpl);if(!tpl)return;
+  const prog=document.getElementById('b-name').value||'Upcoming Program';
+  const date=fmtDate(document.getElementById('b-date').value);
+  const batches=Array.from(document.querySelectorAll('#batch-rows .batch-row input')).map(i=>i.value.trim()).filter(Boolean);
+  if(!batches.length){toast('Please add at least one batch');return;}
+  const nav=document.getElementById('batch-nav'),cards=document.getElementById('batch-cards');
+  nav.innerHTML='';cards.innerHTML='';
+  batches.forEach((b,i)=>{
+    const body=tpl.body.replace(/\[Program\]/g,prog).replace(/\[Date\]/g,date).replace(/\[Audience\]/g,b);
+    const btn=document.createElement('button');
+    btn.className='batch-nbtn'+(i===0?' active':'');
+    btn.textContent=b;
+    btn.onclick=()=>{
+      document.querySelectorAll('.batch-nbtn').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#batch-cards .email-card').forEach(c=>c.classList.remove('active'));
+      document.getElementById('bc-'+i).classList.add('active');
+    };
+    nav.appendChild(btn);
+    const card=document.createElement('div');
+    card.className='email-card'+(i===0?' active':'');
+    card.id='bc-'+i;
+    card.innerHTML=`
+      <div class="email-top">
+        <div>
+          <div class="email-subject">${tpl.name}: ${prog}</div>
+          <span class="pill ${PILLS[tpl.category]||'pill-ink'}">${tpl.category} — ${b}</span>
+        </div>
+      </div>
+      <div class="email-body">${body}</div>
+      <div class="email-actions">
+        <button class="btn-ghost" onclick="cpText(this)">Copy to clipboard</button>
+      </div>`;
+    cards.appendChild(card);
+    genCount++;
+  });
+  localStorage.setItem(SK+'_gc',genCount);
+  updateStats();
+  document.getElementById('batch-out').style.display='block';
+}
+
+// BOT
+let botStarted=false,botStep=0,botAns=[];
+const BOT_FLOW=[
+  "Hi there ✦ I'm your L&D Comms assistant. What program are you communicating about?",
+  "Got it. Who is the target audience for this program?",
+  "What's the single most important message for this communication?",
+  "Last one — what tone feels right? (Formal / Friendly / Urgent)"
+];
+function startBot(){
+  botStarted=true;addBubble('bot',BOT_FLOW[0]);botStep=1;
+}
+function addBubble(type,text){
+  const area=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='bubble bub-'+type;d.textContent=text;
+  area.appendChild(d);area.scrollTop=area.scrollHeight;
+}
+function sendChat(){
+  const inp=document.getElementById('chat-in');
+  const v=inp.value.trim();if(!v)return;
+  addBubble('user',v);botAns.push(v);inp.value='';
+  setTimeout(()=>{
+    if(botStep<BOT_FLOW.length){addBubble('bot',BOT_FLOW[botStep]);botStep++;}
+    else if(botStep===BOT_FLOW.length){addBubble('bot','Perfect — drafting your email now...');botStep++;setTimeout(showBotEmail,900);}
+  },420);
+}
+function showBotEmail(){
+  const [prog,aud,msg,tone]=botAns;
+  addBubble('bot','Here\'s your draft — copy it straight to Outlook ✓');
+  const sal=(tone||'').toLowerCase().includes('formal')?'Dear':'Hi';
+  const body=`${sal} ${aud||'Team'},\n\nWe're excited to announce ${prog||'an upcoming program'}.\n\n${msg||'This is a key opportunity to grow.'}\n\nMore details to follow shortly.\n\nWarm regards,\nL&D Team`;
+  document.getElementById('bot-out').innerHTML=`
+    <div class="email-card active">
+      <div class="email-top">
+        <div>
+          <div class="email-subject">You're invited: ${prog||'Upcoming Program'}</div>
+          <span class="pill pill-blue">Launch Announcement</span>
+        </div>
+      </div>
+      <div class="email-body">${body}</div>
+      <div class="email-actions">
+        <button class="btn-ghost" onclick="cpText(this)">Copy to clipboard</button>
+        <button class="btn-gold" onclick="openModal('${(prog||'Program').replace(/'/g,"\\'")} Launch',this)">Save as template</button>
+      </div>
+    </div>`;
+  genCount++;localStorage.setItem(SK+'_gc',genCount);updateStats();
+}
+
+// INIT
+updateStats();renderTpls();
+</script>
+</body>
+</html>
