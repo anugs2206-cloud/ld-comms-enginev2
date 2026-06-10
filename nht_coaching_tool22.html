@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulseCheck — NHT Coaching</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:       #FAF8F4;
+  --bg-2:     #FFFFFF;
+  --bg-3:     #F4F1EB;
+  --bg-4:     #EDE9E1;
+  --border:   rgba(0,0,0,0.08);
+  --border-s: rgba(0,0,0,0.14);
+  --ink:      #2C2820;
+  --ink-2:    #6B6458;
+  --ink-3:    #A89F94;
+  --brown:    #7A5C3E;
+  --brown-bg: #F2EBE3;
+  --teal:     #2E7D6B;
+  --teal-bg:  #E4F3EF;
+  --amber:    #9B6B1A;
+  --amber-bg: #FBF2E0;
+  --red:      #9B3535;
+  --red-bg:   #FAEBEB;
+  --accent:   #7A5C3E;
+  --accent-bg:#F2EBE3;
+  --r: 12px; --rs: 7px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+/* ── Subtle texture overlay ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C4B89A' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
+
+.shell{max-width:700px;margin:0 auto;padding:48px 24px 100px;position:relative;z-index:1;}
+
+/* ── Header ── */
+.header-wrap{margin-bottom:40px;}
+.wordmark{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;}
+.wm-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--brown);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(122,92,62,0.25);
+}
+.wm-icon svg{width:20px;height:20px;fill:white;}
+.wm-name{font-size:18px;font-weight:800;letter-spacing:-.4px;color:var(--ink);}
+.wm-tag{font-size:10px;font-weight:600;padding:3px 9px;background:var(--brown-bg);color:var(--brown);border-radius:20px;border:1px solid rgba(122,92,62,0.2);letter-spacing:.04em;}
+h1{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1.25;margin-bottom:6px;color:var(--ink);}
+h1 .hl{color:var(--brown);}
+.sub{font-size:13px;color:var(--ink-3);}
+
+/* ── Cards ── */
+.card{
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--r);padding:24px;margin-bottom:14px;
+  position:relative;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--brown),#C49A6C,var(--teal));
+  opacity:.5;
+}
+.card-title{
+  font-size:12px;font-weight:700;color:var(--ink-2);
+  text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:18px;display:flex;align-items:center;gap:10px;
+}
+.step-badge{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--brown);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:white;flex-shrink:0;
+}
+
+/* ── Fields ── */
+.fl{margin-bottom:14px;}
+.fl:last-child{margin-bottom:0;}
+.fl label{display:block;font-size:11px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+input[type=text],input[type=date],textarea{
+  width:100%;padding:10px 14px;
+  border:1px solid var(--border-s);border-radius:var(--rs);
+  font-size:13px;font-family:inherit;
+  color:var(--ink);background:var(--bg);
+  transition:border-color .15s,box-shadow .15s;
+}
+input:focus,textarea:focus{outline:none;border-color:var(--brown);box-shadow:0 0 0 3px rgba(122,92,62,0.1);}
+textarea{resize:none;line-height:1.55;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:520px){.two-col{grid-template-columns:1fr;}}
+
+/* ── Area rows ── */
+.area-row{padding:18px 0;border-bottom:1px solid var(--border);}
+.area-row:last-child{border-bottom:none;padding-bottom:0;}
+.area-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:10px;}
+.area-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px;}
+.area-info{flex:1;}
+.area-name{font-size:13px;font-weight:700;color:var(--ink);}
+.area-desc{font-size:11px;color:var(--ink-3);margin-top:3px;line-height:1.4;}
+.score-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.score-input{
+  width:64px;padding:8px 10px;
+  border:1px solid var(--border-s);border-radius:var(--rs);
+  font-size:18px;font-weight:800;text-align:center;
+  font-family:inherit;color:var(--ink);background:var(--bg);
+  transition:border-color .15s,box-shadow .15s;
+}
+.score-input:focus{outline:none;border-color:var(--brown);box-shadow:0 0 0 3px rgba(122,92,62,0.1);}
+.score-hint{font-size:10px;color:var(--ink-3);letter-spacing:.03em;}
+.score-bar{width:64px;height:3px;background:var(--bg-4);border-radius:2px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .25s,background .25s;width:0;}
+.obs-input{
+  width:100%;padding:8px 12px;
+  border:1px solid var(--border);border-radius:var(--rs);
+  font-size:12px;font-family:inherit;color:var(--ink-2);
+  background:var(--bg-3);line-height:1.5;transition:border-color .15s;
+}
+.obs-input:focus{outline:none;border-color:var(--brown);color:var(--ink);}
+.obs-input::placeholder{color:var(--ink-3);}
+
+/* ── Flag chips ── */
+.flag-row{display:flex;gap:8px;flex-wrap:wrap;}
+.flag-chip{
+  padding:9px 18px;border:1px solid var(--border-s);border-radius:6px;
+  font-size:12px;font-weight:500;cursor:pointer;color:var(--ink-2);
+  background:var(--bg-3);transition:all .15s;user-select:none;
+}
+.flag-chip:hover{border-color:var(--brown);color:var(--ink);}
+.f-none  {background:var(--teal-bg); border-color:rgba(46,125,107,.3); color:var(--teal);  font-weight:600;}
+.f-watch {background:var(--amber-bg);border-color:rgba(155,107,26,.3); color:var(--amber); font-weight:600;}
+.f-urgent{background:var(--red-bg);  border-color:rgba(155,53,53,.3);  color:var(--red);   font-weight:600;}
+
+/* ── Buttons ── */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;}
+.btn{
+  padding:11px 24px;border-radius:var(--rs);font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;border:none;
+  transition:all .15s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn:hover{opacity:.88;transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn-primary{background:var(--brown);color:white;box-shadow:0 2px 10px rgba(122,92,62,0.25);}
+.btn-teal{background:var(--teal);color:white;box-shadow:0 2px 10px rgba(46,125,107,0.2);}
+.btn-ghost{background:var(--bg-2);color:var(--ink-2);border:1px solid var(--border-s);}
+.btn-ghost:hover{color:var(--ink);}
+
+/* ── Preview ── */
+#preview{display:none;}
+.prev-card{
+  background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--r);padding:26px;margin-bottom:14px;
+  position:relative;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.prev-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--brown),#C49A6C);opacity:.6;
+}
+.prev-label{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--brown);margin-bottom:14px;
+  padding:4px 10px;background:var(--brown-bg);border-radius:4px;
+  border:1px solid rgba(122,92,62,.18);
+}
+.prev-name{font-size:20px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px;color:var(--ink);}
+.prev-meta{font-size:12px;color:var(--ink-3);margin-bottom:16px;}
+.summary-text{font-size:13px;color:var(--ink-2);line-height:1.8;}
+.flag-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 14px;border-radius:5px;margin-top:14px;}
+.fb-none  {background:var(--teal-bg); color:var(--teal);  border:1px solid rgba(46,125,107,.25);}
+.fb-watch {background:var(--amber-bg);color:var(--amber); border:1px solid rgba(155,107,26,.25);}
+.fb-urgent{background:var(--red-bg);  color:var(--red);   border:1px solid rgba(155,53,53,.25);}
+
+.score-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px;}
+.score-table th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);}
+.score-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--ink-2);vertical-align:middle;line-height:1.4;}
+.score-table tr:last-child td{border-bottom:none;}
+.score-pill{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:5px;}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+
+.err{background:var(--red-bg);border:1px solid rgba(155,53,53,.25);border-radius:var(--rs);padding:11px 14px;font-size:12px;color:var(--red);margin-top:12px;display:none;}
+
+/* ── Success banner ── */
+.success-banner{
+  background:var(--teal-bg);
+  border:1px solid rgba(46,125,107,.2);border-radius:var(--r);
+  padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;gap:14px;
+}
+.sb-icon{font-size:24px;}
+.sb-text h3{font-size:14px;font-weight:700;color:var(--teal);margin-bottom:2px;}
+.sb-text p{font-size:12px;color:var(--ink-2);}
+
+/* ── Decorative dots ── */
+.dot-grid{position:absolute;top:0;right:0;width:120px;height:120px;opacity:.04;pointer-events:none;}
+</style>
+
+<style>
+/* ── Password gate ── */
+#pw-gate {
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+.pw-box {
+  background:var(--bg-2);border:1px solid var(--border-s);
+  border-radius:var(--r);padding:40px 36px;
+  width:100%;max-width:380px;text-align:center;
+  box-shadow:0 4px 24px rgba(0,0,0,0.07);
+  position:relative;overflow:hidden;
+}
+.pw-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--brown),#C49A6C,var(--teal));opacity:.5;
+}
+.pw-logo{
+  width:48px;height:48px;border-radius:12px;background:var(--brown);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 18px;box-shadow:0 2px 12px rgba(122,92,62,0.22);
+}
+.pw-logo svg{width:24px;height:24px;fill:white;}
+.pw-title{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-.3px;}
+.pw-sub{font-size:12px;color:var(--ink-3);margin-bottom:28px;line-height:1.5;}
+.pw-input-wrap{position:relative;margin-bottom:12px;}
+.pw-input{
+  width:100%;padding:11px 44px 11px 14px;
+  border:1px solid var(--border-s);border-radius:var(--rs);
+  font-size:14px;font-family:inherit;color:var(--ink);
+  background:var(--bg);text-align:center;letter-spacing:.1em;
+  transition:border-color .15s,box-shadow .15s;
+}
+.pw-input:focus{outline:none;border-color:var(--brown);box-shadow:0 0 0 3px rgba(122,92,62,0.1);}
+.pw-toggle{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--ink-3);
+  font-size:15px;padding:2px;line-height:1;
+}
+.pw-toggle:hover{color:var(--ink);}
+.pw-btn{
+  width:100%;padding:12px;background:var(--brown);color:white;
+  border:none;border-radius:var(--rs);font-size:13px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:opacity .15s;
+}
+.pw-btn:hover{opacity:.88;}
+.pw-err{
+  font-size:12px;color:var(--red);margin-top:10px;
+  min-height:18px;transition:opacity .15s;
+}
+.pw-attempts{font-size:11px;color:var(--ink-3);margin-top:16px;}
+.pw-locked{
+  font-size:13px;color:var(--amber);font-weight:600;margin-top:12px;display:none;
+}
+/* Shake animation on wrong password */
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-8px);}
+  40%{transform:translateX(8px);}
+  60%{transform:translateX(-5px);}
+  80%{transform:translateX(5px);}
+}
+.shake{animation:shake .4s ease;}
+</style>
+</head>
+<body>
+
+<!-- ── Password gate ── -->
+<div id="pw-gate">
+  <div class="pw-box" id="pw-box">
+    <div class="pw-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 3c-1.2 5.4-5 8-9 9 4 1 7.8 3.6 9 9 1.2-5.4 5-8 9-9-4-1-7.8-3.6-9-9z"/></svg>
+    </div>
+    <div class="pw-title">PulseCheck</div>
+    <div class="pw-sub">This tool is for authorised trainers only.<br>Please enter your access password to continue.</div>
+    <div class="pw-input-wrap">
+      <input class="pw-input" type="password" id="pw-input" placeholder="Enter password" maxlength="32"
+        onkeydown="if(event.key==='Enter') checkPassword()">
+      <button class="pw-toggle" onclick="togglePwVisibility()" title="Show / hide">👁</button>
+    </div>
+    <button class="pw-btn" onclick="checkPassword()">Unlock</button>
+    <div class="pw-err" id="pw-err"></div>
+    <div class="pw-attempts" id="pw-attempts"></div>
+    <div class="pw-locked" id="pw-locked">Too many incorrect attempts. Please contact your L&D administrator.</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- Header -->
+  <div class="header-wrap">
+    <div class="wordmark">
+      <div class="wm-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3c-1.2 5.4-5 8-9 9 4 1 7.8 3.6 9 9 1.2-5.4 5-8 9-9-4-1-7.8-3.6-9-9z"/></svg>
+      </div>
+      <span class="wm-name">PulseCheck</span>
+      <span class="wm-tag">by L&D</span>
+    </div>
+    <h1>Post-training check-in.<br><span class="hl">Structured. Private. Actionable.</span></h1>
+    <div class="sub">NHT 1-1 coaching observation tool &nbsp;·&nbsp; For trainer use only</div>
+  </div>
+
+  <!-- FORM -->
+  <div id="form-section">
+
+    <!-- Step 1 -->
+    <div class="card">
+      <div class="card-title"><div class="step-badge">1</div>Who are we talking about?</div>
+      <div class="two-col">
+        <div class="fl"><label>Employee name</label><input type="text" id="empName" placeholder="e.g. Riya Sharma"></div>
+        <div class="fl"><label>Employee ID</label><input type="text" id="empId" placeholder="e.g. CN-2024-081"></div>
+        <div class="fl"><label>Your name (trainer)</label><input type="text" id="trainerName" placeholder="Your name"></div>
+        <div class="fl"><label>Check-in date</label><input type="date" id="checkinDate"></div>
+      </div>
+      <!-- Decorative -->
+      <svg class="dot-grid" viewBox="0 0 120 120"><pattern id="dp" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="white"/></pattern><rect width="120" height="120" fill="url(#dp)"/></svg>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card">
+      <div class="card-title"><div class="step-badge">2</div>Evaluation scores &nbsp;<span style="font-size:11px;color:var(--ink-3);font-weight:400;text-transform:none;letter-spacing:0;">1 = critical gap &nbsp;·&nbsp; 10 = strong performance</span></div>
+      <div id="areas-container"></div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card">
+      <div class="card-title"><div class="step-badge">3</div>Support recommendation</div>
+      <div class="flag-row">
+        <span class="flag-chip" id="flag-none"   onclick="selectFlag('none')">✓ On track — no support required</span>
+        <span class="flag-chip" id="flag-watch"  onclick="selectFlag('watch')">⚠ Monitor — periodic check-in advised</span>
+        <span class="flag-chip" id="flag-urgent" onclick="selectFlag('urgent')">● Immediate support required</span>
+      </div>
+    </div>
+
+    <div class="err" id="err-box"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="buildReports()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 13 9 20 9"/><path d="M20 20H4V4h9l7 7v9z"/></svg>
+        Generate reports
+      </button>
+    </div>
+
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="preview">
+
+    <div class="success-banner">
+      <div class="sb-icon">✓</div>
+      <div class="sb-text">
+        <h3>Both reports are ready</h3>
+        <p>Preview below and download each copy. The manager's version contains no scores — developmental tone only.</p>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+      <button class="btn btn-ghost" onclick="resetForm()" style="padding:8px 16px;font-size:12px;">← New check-in</button>
+    </div>
+
+    <!-- Trainer preview -->
+    <div class="prev-card">
+      <div class="prev-label">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Trainer's copy — private
+      </div>
+      <div id="pt-name" class="prev-name"></div>
+      <div id="pt-meta" class="prev-meta"></div>
+      <div id="pt-summary" class="summary-text"></div>
+      <div id="pt-flag"></div>
+      <div class="divider"></div>
+      <table class="score-table">
+        <thead><tr><th style="width:34%">Area</th><th style="width:14%;text-align:center;">Score</th><th>Observation</th></tr></thead>
+        <tbody id="pt-scores"></tbody>
+      </table>
+      <div style="margin-top:20px;">
+        <button class="btn btn-ghost" id="dl-trainer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Trainer's copy (.rtf)
+        </button>
+      </div>
+    </div>
+
+    <!-- Manager preview -->
+    <div class="prev-card" style="--border:rgba(45,219,166,0.1);">
+      <div class="prev-label" style="color:var(--teal);background:var(--teal-bg);border-color:rgba(46,125,107,.2);">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Manager's copy
+      </div>
+      <div id="pm-name" class="prev-name"></div>
+      <div id="pm-meta" class="prev-meta"></div>
+      <div id="pm-summary" class="summary-text"></div>
+      <div id="pm-flag"></div>
+      <div style="margin-top:20px;">
+        <button class="btn btn-mint" id="dl-manager">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Manager's copy (.rtf)
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Copyright footer -->
+  <div style="margin-top:60px;padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:28px;height:28px;border-radius:7px;background:var(--brown);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(122,92,62,0.25);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 3c-1.2 5.4-5 8-9 9 4 1 7.8 3.6 9 9 1.2-5.4 5-8 9-9-4-1-7.8-3.6-9-9z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink);">PulseCheck</div>
+        <div style="font-size:10px;color:var(--ink-3);">NHT Coaching Intelligence Tool</div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px;font-weight:600;color:var(--ink-2);">&#169; 2025 Vanishree GS. All rights reserved.</div>
+      <div style="font-size:10px;color:var(--ink-3);margin-top:2px;">Designed &amp; developed for internal L&amp;D use &nbsp;&#183;&nbsp; Unauthorised reproduction prohibited</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── Password gate ─────────────────────────────────────────
+   Change the value of CORRECT_PASSWORD to whatever you want.
+   Share that password only with your authorised trainers.
+   To change it later: open this file in Notepad, find the
+   line below, and update the value.
+──────────────────────────────────────────────────────────── */
+const CORRECT_PASSWORD = 'PulseCheck@NHT';
+const MAX_ATTEMPTS = 5;
+let attempts = 0;
+let locked = false;
+
+function checkPassword() {
+  if (locked) return;
+  const input = document.getElementById('pw-input').value.trim();
+  const errEl = document.getElementById('pw-err');
+  const attEl = document.getElementById('pw-attempts');
+
+  if (input === CORRECT_PASSWORD) {
+    // Correct — fade out gate and reveal tool
+    const gate = document.getElementById('pw-gate');
+    gate.style.transition = 'opacity .4s ease';
+    gate.style.opacity = '0';
+    setTimeout(() => gate.style.display = 'none', 420);
+  } else {
+    attempts++;
+    const remaining = MAX_ATTEMPTS - attempts;
+    // Shake the box
+    const box = document.getElementById('pw-box');
+    box.classList.remove('shake');
+    void box.offsetWidth; // reflow to restart animation
+    box.classList.add('shake');
+    // Clear input
+    document.getElementById('pw-input').value = '';
+
+    if (attempts >= MAX_ATTEMPTS) {
+      locked = true;
+      errEl.textContent = '';
+      attEl.textContent = '';
+      document.getElementById('pw-locked').style.display = 'block';
+      document.getElementById('pw-input').disabled = true;
+      document.querySelector('.pw-btn').disabled = true;
+      document.querySelector('.pw-btn').style.opacity = '.4';
+    } else {
+      errEl.textContent = 'Incorrect password. Please try again.';
+      attEl.textContent = `${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`;
+    }
+  }
+}
+
+function togglePwVisibility() {
+  const input = document.getElementById('pw-input');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+const AREAS = [
+  {key:'recruitment', name:'Recruitment Understanding', desc:'Sourcing, screening, flow, hiring concepts',  icon:'🎯', color:'#7A5C3E'},
+  {key:'tools',       name:'Tool Usage',                desc:'Naukri, internal tools, trackers, email',    icon:'🛠️', color:'#2E7D6B'},
+  {key:'engagement',  name:'Candidate Engagement',      desc:'Communication, professionalism, follow-up',  icon:'💬', color:'#9B6B1A'},
+  {key:'application', name:'Application of Learning',   desc:'Applying NHT concepts in real situations',   icon:'📋', color:'#7A5C3E'},
+  {key:'confidence',  name:'Confidence & Ownership',    desc:'Initiative, accountability, problem-solving', icon:'🌱', color:'#2E7D6B'},
+];
+
+let selectedFlag = '';
+document.getElementById('checkinDate').valueAsDate = new Date();
+
+// Build area rows
+const container = document.getElementById('areas-container');
+AREAS.forEach(a => {
+  const iconBg = a.color + '22';
+  container.innerHTML += `
+    <div class="area-row">
+      <div class="area-top">
+        <div class="area-icon" style="background:${iconBg};">${a.icon}</div>
+        <div class="area-info">
+          <div class="area-name">${a.name}</div>
+          <div class="area-desc">${a.desc}</div>
+        </div>
+        <div class="score-wrap">
+          <input type="number" class="score-input" id="score-${a.key}" min="1" max="10" placeholder="—" oninput="updateBar('${a.key}','${a.color}')">
+          <div class="score-hint">/ 10</div>
+          <div class="score-bar"><div class="score-bar-fill" id="bar-${a.key}"></div></div>
+        </div>
+      </div>
+      <textarea class="obs-input" id="obs-${a.key}" rows="2" placeholder="Note your observation from the conversation (optional)"></textarea>
+    </div>`;
+});
+
+function updateBar(key, color) {
+  const v = Math.min(Math.max(parseInt(document.getElementById('score-'+key).value)||0,0),10);
+  const f = document.getElementById('bar-'+key);
+  f.style.width = (v*10)+'%';
+  f.style.background = v>=8 ? '#2E7D6B' : v>=6 ? '#7A5C3E' : v>=4 ? '#9B6B1A' : '#9B3535';
+}
+
+function selectFlag(val) {
+  selectedFlag = val;
+  ['none','watch','urgent'].forEach(f => {
+    document.getElementById('flag-'+f).classList.remove('f-none','f-watch','f-urgent');
+  });
+  document.getElementById('flag-'+val).classList.add('f-'+val);
+}
+
+/* ── Summary builders ── */
+function joinList(arr) {
+  if(!arr.length) return '';
+  if(arr.length===1) return arr[0];
+  return arr.slice(0,-1).join(', ')+' and '+arr[arr.length-1];
+}
+
+function buildTrainerSummary(d) {
+  const avg = (d.scores.reduce((a,b)=>a+b,0)/d.scores.length).toFixed(1);
+  const strengths  = AREAS.filter((_,i)=>d.scores[i]>=7).map(a=>a.name);
+  const developing = AREAS.filter((_,i)=>d.scores[i]>=5&&d.scores[i]<7).map(a=>a.name);
+  const gaps       = AREAS.filter((_,i)=>d.scores[i]>0&&d.scores[i]<5).map(a=>a.name);
+  let p = `${d.name} — check-in completed on ${d.date}. Overall average: ${avg}/10. `;
+  if(strengths.length)  p += `Demonstrating strength in ${joinList(strengths)}. `;
+  if(developing.length) p += `${joinList(developing)} ${developing.length>1?'are':'is'} developing — practice and reinforcement recommended. `;
+  if(gaps.length)       p += `Needs focused support in ${joinList(gaps)}. `;
+  const obsNotes = AREAS.map((a,i)=>d.obs[i]?`${a.name}: ${d.obs[i]}`:null).filter(Boolean);
+  if(obsNotes.length) p += 'Observations — '+obsNotes.join('; ')+'.';
+  return p.trim();
+}
+
+function buildManagerSummary(d) {
+  const avg = d.scores.filter(s=>s>0).reduce((a,b)=>a+b,0)/(d.scores.filter(s=>s>0).length||1);
+  const strengths  = AREAS.filter((_,i)=>d.scores[i]>=7).map(a=>a.name);
+  const developing = AREAS.filter((_,i)=>d.scores[i]>=5&&d.scores[i]<7).map(a=>a.name);
+  const gaps       = AREAS.filter((_,i)=>d.scores[i]>0&&d.scores[i]<5).map(a=>a.name);
+  const first = d.name.split(' ')[0];
+  let opening = avg>=7.5 ? `${d.name} is making strong progress following their NHT training.`
+              : avg>=5.5 ? `${d.name} is showing steady progress following their NHT training.`
+              :             `${d.name} is in the early stages of applying their NHT training on the job.`;
+  let p = opening+' ';
+  if(strengths.length)  p += `They are demonstrating solid capability in ${joinList(strengths)}. `;
+  if(developing.length) p += `${joinList(developing)} ${developing.length>1?'are':'is'} an area${developing.length>1?'s':''} of active development — consistent practice will build confidence here. `;
+  if(gaps.length)       p += `Additional support is recommended in ${joinList(gaps)}. The trainer will continue to work with ${first} on these areas. `;
+  if(d.flag==='none')        p += `No immediate action required — ${first} is on track.`;
+  else if(d.flag==='watch')  p += `We recommend the manager check in periodically to reinforce on-the-job learning.`;
+  else if(d.flag==='urgent') p += `We recommend a prompt conversation with ${first} to discuss additional support.`;
+  return p.trim();
+}
+
+function flagInfo(f) {
+  return f==='none'   ? {label:'✓ On track — no support required',      cls:'none'}
+       : f==='watch'  ? {label:'⚠ Monitor — periodic check-in advised',  cls:'watch'}
+       : f==='urgent' ? {label:'● Immediate support required',            cls:'urgent'}
+       :                {label:'Status not set',                          cls:'none'};
+}
+
+function scoreColor(s) {
+  return s>=8?'#2E7D6B':s>=6?'#7A5C3E':s>=4?'#9B6B1A':'#9B3535';
+}
+
+/* ── Build & render ── */
+function buildReports() {
+  const name    = document.getElementById('empName').value.trim();
+  const empId   = document.getElementById('empId').value.trim();
+  const trainer = document.getElementById('trainerName').value.trim();
+  const dateVal = document.getElementById('checkinDate').value;
+  const err     = document.getElementById('err-box');
+
+  if(!name)    { showErr('Please enter the employee name.'); return; }
+  if(!trainer) { showErr('Please enter your name as trainer.'); return; }
+
+  const scores = AREAS.map(a=>{
+    const v=parseInt(document.getElementById('score-'+a.key).value);
+    return isNaN(v)?0:Math.min(Math.max(v,1),10);
+  });
+  if(!scores.some(s=>s>0)) { showErr('Please score at least one area.'); return; }
+  if(!selectedFlag)         { showErr('Please drop a flag before generating.'); return; }
+  err.style.display='none';
+
+  const dateFormatted = dateVal
+    ? new Date(dateVal+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+    : new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+  const obs = AREAS.map(a=>document.getElementById('obs-'+a.key).value.trim());
+  const data = {name,empId,trainer,date:dateFormatted,scores,obs,flag:selectedFlag};
+  window._D = data;
+
+  const ft = flagInfo(data.flag);
+
+  // Trainer preview
+  document.getElementById('pt-name').textContent = data.name;
+  document.getElementById('pt-meta').textContent = [data.empId,'Check-in: '+data.date,'Trainer: '+data.trainer].filter(Boolean).join('   ·   ');
+  document.getElementById('pt-summary').textContent = buildTrainerSummary(data);
+  document.getElementById('pt-flag').innerHTML = `<span class="flag-badge fb-${ft.cls}">${ft.label}</span>`;
+  document.getElementById('pt-scores').innerHTML = AREAS.map((a,i)=>
+    `<tr>
+      <td style="font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px;">
+        <span>${a.icon}</span>${a.name}
+      </td>
+      <td style="text-align:center;">
+        <span class="score-pill" style="background:${scoreColor(data.scores[i])}22;color:${scoreColor(data.scores[i])}">
+          ${data.scores[i]>0?data.scores[i]+'/10':'—'}
+        </span>
+      </td>
+      <td style="color:var(--ink-2);">${data.obs[i]||'—'}</td>
+    </tr>`).join('');
+
+  // Manager preview
+  document.getElementById('pm-name').textContent = data.name;
+  document.getElementById('pm-meta').textContent = [data.empId?'ID: '+data.empId:'','Check-in: '+data.date,'Trainer: '+data.trainer].filter(Boolean).join('   ·   ');
+  document.getElementById('pm-summary').textContent = buildManagerSummary(data);
+  document.getElementById('pm-flag').innerHTML = `<span class="flag-badge fb-${ft.cls}">${ft.label}</span>`;
+
+  document.getElementById('dl-trainer').onclick = ()=>generateRTF('trainer');
+  document.getElementById('dl-manager').onclick = ()=>generateRTF('manager');
+
+  document.getElementById('form-section').style.display='none';
+  document.getElementById('preview').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showErr(msg){ const e=document.getElementById('err-box'); e.textContent=msg; e.style.display='block'; }
+
+function resetForm(){
+  document.getElementById('form-section').style.display='block';
+  document.getElementById('preview').style.display='none';
+  selectedFlag='';
+  ['none','watch','urgent'].forEach(f=>{
+    document.getElementById('flag-'+f).classList.remove('f-none','f-watch','f-urgent');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── RTF export ── */
+function generateRTF(type) {
+  const data = window._D;
+  if(!data){ alert('No report data. Please generate first.'); return; }
+
+  const isTrainer = type==='trainer';
+  const ft = flagInfo(data.flag);
+  const summary = isTrainer ? buildTrainerSummary(data) : buildManagerSummary(data);
+
+  function r(s) {
+    return String(s).replace(/\\/g,'\\\\').replace(/\{/g,'\\{').replace(/\}/g,'\\}')
+      .replace(/[^\x00-\x7F]/g,c=>`\\u${c.charCodeAt(0)}?`);
+  }
+
+  const flagColorIdx = data.flag==='none'?3:data.flag==='watch'?4:5;
+  function scColorIdx(s){ return s>=8?3:s>=6?6:s>=4?4:5; }
+
+  let rtf=`{\\rtf1\\ansi\\deff0
+{\\fonttbl{\\f0\\fswiss\\fcharset0 Calibri;}}
+{\\colortbl;\\red28\\green28\\blue26;\\red74\\green74\\blue70;\\red144\\green144\\blue136;\\red12\\green107\\blue82;\\red125\\green74\\blue10;\\red158\\green43\\blue43;\\red23\\green78\\blue143;}
+\\paperw12240\\paperh15840\\margl1440\\margr1440\\margt1440\\margb1440
+\\f0\\fs22\\cf1
+`;
+
+  rtf+=`{\\pard\\sb0\\sa120\\f0\\fs30\\b\\cf1 ${r(isTrainer?"PulseCheck — Trainer's Copy":"PulseCheck — Manager's Copy")}\\par}\n`;
+  rtf+=`{\\pard\\sb0\\sa80\\f0\\fs28\\b\\cf1 ${r(data.name)}\\par}\n`;
+  const meta=[data.empId?'ID: '+data.empId:null,'Check-in: '+data.date,'Trainer: '+data.trainer].filter(Boolean).join('   |   ');
+  rtf+=`{\\pard\\sb0\\sa280\\f0\\fs18\\cf2 ${r(meta)}\\par}\n`;
+  rtf+=`{\\pard\\sb0\\sa0\\brdrb\\brdrs\\brdrw10\\brdrsp20 \\par}\n`;
+  rtf+=`{\\pard\\sb200\\sa80\\f0\\fs22\\b\\cf1 Summary\\par}\n`;
+  rtf+=`{\\pard\\sb0\\sa200\\f0\\fs20\\cf2 ${r(summary)}\\par}\n`;
+  rtf+=`{\\pard\\sb0\\sa280\\f0\\fs20\\b\\cf${flagColorIdx} ${r(ft.label)}\\par}\n`;
+
+  if(isTrainer){
+    rtf+=`{\\pard\\sb160\\sa80\\f0\\fs22\\b\\cf1 Scores & Observations\\par}\n`;
+    rtf+=`{\\trowd\\trqc\\cellx3600\\cellx1800\\cellx9200\n`;
+    rtf+=`{\\pard\\intbl\\f0\\fs18\\b\\cf3 Area\\cell}{\\pard\\intbl\\qc\\f0\\fs18\\b\\cf3 Score\\cell}{\\pard\\intbl\\f0\\fs18\\b\\cf3 Observation\\cell}\\row}\n`;
+    AREAS.forEach((a,i)=>{
+      const s=data.scores[i], sci=s>0?scColorIdx(s):3;
+      rtf+=`{\\trowd\\trqc\\cellx3600\\cellx1800\\cellx9200\n`;
+      rtf+=`{\\pard\\intbl\\f0\\fs19\\b\\cf1 ${r(a.name)}\\fs16\\b0\\cf3  ${r(a.desc)}\\cell}\n`;
+      rtf+=`{\\pard\\intbl\\qc\\f0\\fs20\\b\\cf${sci} ${s>0?r(s+'/10'):r('—')}\\cell}\n`;
+      rtf+=`{\\pard\\intbl\\f0\\fs19\\cf2 ${r(data.obs[i]||'—')}\\cell}\\row}\n`;
+    });
+    rtf+=`{\\pard\\sb120\\sa0\\par}\n`;
+  }
+
+  const footer=isTrainer
+    ?'Confidential — Trainer use only. Do not share with employee.'
+    :"For the employee's direct manager. Please treat this information with discretion.";
+  rtf+=`{\\pard\\sb280\\sa0\\f0\\fs16\\i\\cf3 ${r(footer)}\\par}\n}`;
+
+  const blob=new Blob([rtf],{type:'application/rtf'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`PulseCheck_${data.name.replace(/\s+/g,'_')}_${type==='trainer'?'Trainer':'Manager'}_${data.date.replace(/\s/g,'')}.rtf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+</script>
+</body>
+</html>
